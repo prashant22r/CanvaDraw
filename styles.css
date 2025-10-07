@@ -117,7 +117,7 @@ section{
 .colors .option:nth-child(5){
     background :#4A98F7;
 }
-.colors .option:hover ::before{
+.colors .option :hover::before{
     position :absolute;
     top:50%;
     left:50%;
@@ -134,7 +134,8 @@ section{
     border-color: #c82828;
 }
 
-.option:is(:hover, .active)::after{
+
+.colors .option:is(:hover, .active)::after{
     position :absolute;
     top:50%;
     left:50%;
@@ -145,12 +146,19 @@ section{
     border-radius: 50%;
     transform: translate(-50%, -50%);
 }
+
+.colors .option #color-picker{
+    opacity: 0;
+    cursor: pointer;
+
+}
 .buttons button {
     width:100%;
     color:#fff;
     border:none;
     padding:11px 0;
     margin-bottom: 13px;
+    font-size :0.9rem;
     background:none;
     border-radius: 5px;
     cursor : pointer;
@@ -163,7 +171,12 @@ section{
 .buttons #clear-canvas{
     color:#6C757D;
     border: 1px solid #6C757D;
+    transition :all 0.3s ease;
 
+} 
+#clear-canvas:hover{
+    background: #4A98F7;
+    color:#fff;
 }
 .buttons #save-img{
     background:#4A98F7;
@@ -177,4 +190,9 @@ section{
     height: 80vh;
     width: 100vw;
     margin-top: 100px;
+}
+
+.drawing-board canvas{
+    width :100%;
+    height :100%;
 }
