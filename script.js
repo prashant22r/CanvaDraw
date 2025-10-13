@@ -61,3 +61,27 @@ canvas.addEventListener("mousedown", startDrawing); // starting point of drawing
 canvas.addEventListener("mousemove", drawing);
 canvas.addEventListener("mouseup", stopDrawing);
 
+
+
+const saveWorkBtn = document.getElementById("save-work");
+const loadWorkBtn = document.getElementById("load-work");
+const clearBtn = document.getElementById("clear-canvas");
+const downloadBtn = document.getElementById("download-file");
+const uploadBtn = document.getElementById("upload-btn");
+const uploadInput = document.getElementById("upload-file");
+
+const STORAGE_KEY = "canvasDrawing"; // Key to store/retrieve drawing data in/from localStorage
+
+// Save work to localStorage
+function saveWork() {
+    const data = {
+        imageData: canvas.toDataURL(), // Save canvas image as data URL
+    };
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
+    alert("✅ Drawing saved locally!");
+}
+
+// Load work from localStorage
+function loadWork() {
+    const saved = localStorage.getItem(STORAGE_KEY);
+}
