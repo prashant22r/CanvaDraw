@@ -3,77 +3,48 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>YourCanvas</title>
+    <title>Canvas WhiteBoard</title>
     <link rel="stylesheet" href="styles.css">
     <script src="script.js" defer></script>
 </head>
 <body>
-    <div class = "container">
-        <section class="tools-board">
-            <div class="row">
-                <label class="title">Shapes</label>
-                <ul class="options">
-                    <li class="option tool " id="rectangle">
-                        <img src="icons/rectangle.svg" alt="Rectangle" id="rectangle">
-                        <span>Rectangle</span>
-                        
-                    </li>
-                    <li class="option tool" id="circle">
-                        <img src="icons/circle.svg" alt="Circle" id="circle">
-                        <span>Circle</span>
+   <header class ="toolbar">
+    <!-- name of the app -->
+    <div class ="brand">Canva Board</div>
+    <!-- controls -->
+    <div class ="controls">
+        <div class = "tool-buttons">
+            <button class="tool active" id = "brush" title = "Brush">
+                <img src = "icons/brush.svg" alt = "Brush">
+            </button>
+            <button class="tool" id = "eraser" title = "Eraser">
+                <img src = "icons/eraser.svg" alt = "Eraser">
+            </button>
+        </div>
 
-                    </li>
-                    <li class="option tool" id="triangle">
-                        <img src="icons/triangle.svg" alt="Triangle" id="triangle">
-                        <span>Triangle</span>
-                    </li>
-                    <li class="option">
-                        <input type="checkbox" id="fill-color">
-                        <label for="fill-color">Fill color</label>
-                    </li>
-                </ul>
-            </div>
-            <div class="row">
-                <label class="title">Options</label>
-                <ul class="options">
-                    <li class="option active tool" id="brush">
-                        <img src="icons/brush.svg" alt="Brush" id="brush">
-                        <span>Brush</span>
-                    </li>
-                    <li class="option tool" id="eraser">
-                        <img src="icons/eraser.svg" alt="Eraser" id="eraser">
-                        <span>Eraser</span>
+        <label  class = "control-inline">
+            Size
+            <input id = "size" type = "range" min = "1" max = "50" value = "5">
+        </label>
 
-                    </li>
-                    <li id="slider">
-                        <input type="range" id="size-slider" >
-                    </li>
-                </ul>
-            </div>
-            <div class="row colors">
-                <label class="title">Colors</label>
-                <ul class="options colors">
-                    <li class="option"></li>
-                    <li class="option selected"></li>
-                    <li class="option"></li>
-                    <li class="option"></li>
-                    <li class="option">
-                        <input type ="color" id = "color-picker" value="#4A98F7">
-                    </li>
-                </ul>
-            </div>
-            <div class="row buttons">
-                <button id="clear-canvas">Clear Canvas</button>
-                <button id="save-work">Save Work</button>
-                <button id="load-work">Load Work</button>
-                <button id ="download-file">Download File</button>
-                <input type="file" id="upload-file" accept=".json" style="display: none;">
-                <button id ="upload-btn">Upload File</button>
-            </div>
-        </section>
-        <section class="drawing-board">
-            <canvas></canvas>
-        </section>
+        <label class = "control-inline">
+            Color
+            <input id = "color" type = "color" value = "#000000">
+        </label>
+
+        <button id = "load-btn">Load</button>
+        <button id = "download-btn">Download</button>
+        <input id = "upload-file" type = "file" accept=".json" style = "display:none">
+        <button id = "upload-btn">Upload</button>
+
+        <button id = "clear-btn">Clear</button>
+        <button id = "logout-btn">Logout</button>
     </div>
+   </header>
+
+   <main class = "canvas-wrap">
+    <canvas id = "board"></canvas>
+   </main>
+    
 </body>
 </html>

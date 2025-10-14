@@ -1,87 +1,131 @@
-const canvas = document.querySelector("canvas");
-const toolBtns = document.querySelectorAll(".tool");
-const ctx = canvas.getContext("2d");
+(()=>{
+   const canvas = document.querySelector("canvas");
+   const ctx = canvas.getContext("2d",{willReadFrequently:true});
+   // ctx is used to read and write pixels to the canvas
 
+   const sizeEl = document.getElementById("size");
+   const colorEl = document.getElementById("color");
+   const loadBtn = document.getElementById("load-btn");
+   const downloadBtn = document.getElementById("download-btn");
+   const uploadBtn = document.getElementById("upload-btn");
+   const uploadInput = document.getElementById("upload-file");
+   const clearBtn = document.getElementById("clear-btn");
+   const logoutBtn = document.getElementById("logout-btn");
+   
+   const STORAGE_USERS_KEY = "users"; // key to store users in localStorage
+   const STORAGE_CURRENT_KEY = "currentUser"; // key to store current user in localStorage
 
-//global variables with default values
-let isDrawing = false; // flag to track whether the user is drawing or not
-let brushWidth = 5; // default brush width
-let selectedTool = "brush"; // default tool is brush
-let prevMouseX, prevMouseY, snapshot; // prevMouseX and prevMouseY to store previous mouse coordinates
+   const currentUser = localStorage.getItem(STORAGE_CURRENT_KEY);
+   if(!currentUser) {
+      window.location.href = "login.html"; // redirect to login if not logged in
+      return;
+   }
 
-const drawRectangle = (event) => {
-    ctx.strokeRect(event.offsetX, event.offsetY, prevMouseX - event.offsetX, prevMouseY - event.offsetY);;
-    // take x-cordinate y-cordinate width and height for rectangle as parameter
-}
+   // canvas setup
 
-window.addEventListener("load", () =>{
-    // setting canvas width/height according to window
-    canvas.width = canvas.offsetWidth;
-    canvas.height = canvas.offsetHeight;
-});
+   function fitCanvasToContainer() {
+      const rect = canvas.getBoundingClientRect();
+      // boundingClientRect() returns the size of an element and its position relative to the viewport.
+      const dpr = window.devicePixelRatio || 1;
+      // devicePixelRatio is the ratio of physical pixels to device-independent pixels (dips) on the device.
+      canvas.width = Math.round(rect.width * dpr);
+      canvas.height = Math.round(rect.height * dpr);
+      canvas.style.width = rect.width + "px";
+      canvas.style.height = rect.height + "px";
+      ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+      // setTransforms(dpr, 0, 0, dpr, 0, 0) scales the context to account for device pixel ratio.
 
-const drawing = (event) => { // event is what is triggered while drawing
-    if (!isDrawing) return; // if isDrawing is false return from here
+   }
 
-    ctx.putImageData(snapshot, 0, 0); // adding copied canvas data on to this canvas
-    if (selectedTool === "brush") {
-        ctx.lineTo(event.offsetX, event.offsetY); // creates new line to the mouse pointer
-        ctx.stroke(); // drawing/filling line with color
-    }
-    else if (selectedTool === "rectangle") {
-        drawRectangle(event);
-    }
-    
-}
+   window.addEventListener("resize", fitCanvasToContainer);
+   // whenever the window is resized that is screen is zoomed in or zoomed out fitCanvasToContainer is called
+   fitCanvasToContainer(); // initial call to fit canvas to container
 
+   let drawing = false;
+   let lastX = 0;
+   let lastY = 0;
+   let tool = "brush"; // default tool is brush
+   let brushSize = parseInt(sizeEl.value, 10); // default brush size
+   let brushColor = colorEl.value; // default brush color
+   let lastSaved = "";
+   let lastChangeTime = Date.now();
 
-const startDrawing = (event) => {
-    isDrawing = true;
-    prevMouseX = event.offsetX; // passing current mouseX position as prevMouseX
-    prevMouseY = event.offsetY; // passing current mouseY position as prevMouseY
-    snapshot = ctx.getImageData(0, 0, canvas.width, canvas.height); // copying canvas data & passing as snapshot value
-    ctx.beginPath(); // creating new path to draw
-    ctx.lineWidth = brushWidth; // passing brushSize as line width
-}
-
-const stopDrawing = () => {
-    isDrawing = false;
-}
-
-toolBtns.forEach(btn => {
-    btn.addEventListener("click", () =>{ // adding click event to all tool option
-        // removing active class from the previous option and adding on current clicked option
-        document.querySelector(".options .active ").classList.remove("active");
-        btn.classList.add("active");
-        selectedTool = btn.id;
-        console.log(selectedTool);
-    })
-})
-canvas.addEventListener("mousedown", startDrawing); // starting point of drawing
-canvas.addEventListener("mousemove", drawing);
-canvas.addEventListener("mouseup", stopDrawing);
+   ctx.lineJoin = "round";
+   ctx.lineCap = "round";
+   ctx.lineWidth = brushSize;
+   ctx.strokeStyle = brushColor;
 
 
 
-const saveWorkBtn = document.getElementById("save-work");
-const loadWorkBtn = document.getElementById("load-work");
-const clearBtn = document.getElementById("clear-canvas");
-const downloadBtn = document.getElementById("download-file");
-const uploadBtn = document.getElementById("upload-btn");
-const uploadInput = document.getElementById("upload-file");
+   function beginStroke(x, y) {
+      drawing = true;
+      lastX = x;
+      lastY = y;
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+   }
 
-const STORAGE_KEY = "canvasDrawing"; // Key to store/retrieve drawing data in/from localStorage
+   function drawLine(x, y) {
+      if (!drawing) return;
+      ctx.lineWidth = brushSize;
+      ctx.lineCap = "round";
+      ctx.lineJoin = "round";
 
-// Save work to localStorage
-function saveWork() {
-    const data = {
-        imageData: canvas.toDataURL(), // Save canvas image as data URL
-    };
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(data));
-    alert("✅ Drawing saved locally!");
-}
+      if (tool === "brush") {
+         ctx.save(); // save the current state of the context
+         ctx.globalCompositeOperation = "destination-out"; 
+         // destination-out makes the new shape cut out from the existing canvas content
+         ctx.strokeStyle = "rgba(0,0,0,0.1)"; // transparent brush for eraser
+         ctx.lineTo(x, y);
+         ctx.stroke(); // draw the line
+         ctx.restore(); // restore the context to its original state
+      }
 
-// Load work from localStorage
-function loadWork() {
-    const saved = localStorage.getItem(STORAGE_KEY);
-}
+      else {
+         ctx.globalCompositeOperation = "source-over";
+         ctx.strokeStyle = brushColor;
+         ctx.lineTo(x, y);
+         ctx.stroke(); // draw the line
+
+      }
+
+      lastX = x;
+      lastY = y;
+      lastChangeTime = Date.now();
+   }
+
+   function endStroke() {
+      if (!drawing) return;
+      drawing = false;
+      ctx.closePath();
+      saveToCurrentUser();
+   }
+
+   function saveToCurrentUser() {
+      const users = JSON.parse(localStorage.getItem(STORAGE_USERS_KEY)) || {};
+      users[currentUser] = users[currentUser] || {};
+      users[currentUser].drawing = canvas.toDataURL();
+      localStorage.setItem(STORAGE_USERS_KEY, JSON.stringify(users));
+      lastSaved = users[currentUser].drawing;
+      console.log("Drawing saved for user:", currentUser);
+   }
+
+   const toolButtons = document.querySelectorAll(".tool-buttons .tool");
+   toolButtons.forEach(button => {
+      button.addEventListener("click", () => {
+         toolButtons.forEach(btn => btn.classList.remove("active"));
+         button.classList.add("active");
+         tool = button.id;
+      });
+   });
+
+   sizeEl.addEventListener("input", (e) => {
+      brushSize = parseInt(e.target.value, 10);
+   });
+   colorEl.addEventListener("input", (e) => {
+      brushColor = e.target.value;
+   });
+
+   
+})();
+// self invoking function
