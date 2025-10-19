@@ -163,8 +163,8 @@ html,body {
 }
 
 #board {
-  max-width: 1200px;
-  min-height: 400px;
+  max-width: 2500px;
+  min-height: 590px;
   border-radius: 16px;
   box-shadow: 0 10px 30px rgba(13,38,76,0.1);
   background: #ffffff;
